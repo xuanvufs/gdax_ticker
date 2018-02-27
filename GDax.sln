@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDax", "GDax\GDax.csproj", "{725E9E52-04F7-4238-8268-3D990FA769C2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{725E9E52-04F7-4238-8268-3D990FA769C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{725E9E52-04F7-4238-8268-3D990FA769C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{725E9E52-04F7-4238-8268-3D990FA769C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{725E9E52-04F7-4238-8268-3D990FA769C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6F7C84D2-C2FD-41EE-88C2-357DCEFDAD00}
+	EndGlobalSection
+EndGlobal
