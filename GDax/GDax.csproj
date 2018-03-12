@@ -13,6 +13,21 @@
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -23,6 +38,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>GDax.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -32,10 +48,20 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>GDax.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Resources\gdax.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>GDax.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.8\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="MaterialDesignColors, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.1.3\lib\net45\MaterialDesignColors.dll</HintPath>
@@ -46,11 +72,16 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="StructureMap, Version=4.6.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\StructureMap.4.6.1\lib\net45\StructureMap.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.4.0\lib\netstandard2.0\System.Buffers.dll</HintPath>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.WebSockets.Client.Managed, Version=1.0.20.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Net.WebSockets.Client.Managed.1.0.20\lib\net45\System.Net.WebSockets.Client.Managed.dll</HintPath>
     </Reference>
@@ -76,19 +107,42 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CoinKind.cs" />
-    <Compile Include="CoinToPathConverter.cs" />
-    <Compile Include="CoinToProductIdConverter.cs" />
-    <Compile Include="CryptoCoin.cs" />
-    <Compile Include="DelegateCommand.cs" />
-    <Compile Include="IconAttribute.cs" />
-    <Compile Include="ProductIdAttribute.cs" />
-    <Compile Include="RequestMessage.cs" />
-    <Compile Include="TickerWidget.xaml.cs">
+    <Compile Include="Controls\TrayMenu.cs" />
+    <Compile Include="Models\Channel.cs" />
+    <Compile Include="Converters\ChannelListConverter.cs" />
+    <Compile Include="Enums\ChannelType.cs" />
+    <Compile Include="Enums\CoinKind.cs" />
+    <Compile Include="Converters\CoinToPathConverter.cs" />
+    <Compile Include="Converters\CoinToProductIdConverter.cs" />
+    <Compile Include="Commands\IMenuItem.cs" />
+    <Compile Include="Commands\SimpleItem.cs" />
+    <Compile Include="Views\Models\TickerViewModel.cs" />
+    <Compile Include="Commands\DelegateCommand.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Helpers\Comparator.cs" />
+    <Compile Include="Helpers\AppInfo.cs" />
+    <Compile Include="Helpers\SettingsXmlSerializer.cs" />
+    <Compile Include="Attributes\IconAttribute.cs" />
+    <Compile Include="IoC\Bootstrapper.cs" />
+    <Compile Include="IoC\SettingsFactory.cs" />
+    <Compile Include="IoC\SettingsTypeGenerator.cs" />
+    <Compile Include="Attributes\ProductIdAttribute.cs" />
+    <Compile Include="Models\RequestMessage.cs" />
+    <Compile Include="Enums\RequestType.cs" />
+    <Compile Include="Models\ResponseMessage.cs" />
+    <Compile Include="Enums\ResponseType.cs" />
+    <Compile Include="Views\Models\SettingsDataModel.cs" />
+    <Compile Include="Settings\ITickerSetting.cs" />
+    <Compile Include="Commands\TickerItem.cs" />
+    <Compile Include="Views\Models\TrayMenuViewModel.cs" />
+    <Compile Include="Views\TickerWidget.xaml.cs">
       <DependentUpon>TickerWidget.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TrayIconViewModel.cs" />
-    <Page Include="MainWindow.xaml">
+    <Page Include="Controls\Templates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Settings.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -97,22 +151,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Feed.cs" />
-    <Compile Include="Helper.cs" />
-    <Compile Include="MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
+    <Compile Include="Helpers\Debugging.cs" />
+    <Compile Include="Views\Settings.xaml.cs">
+      <DependentUpon>Settings.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="NotifyIconResources.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="TickerWidget.xaml">
+    <Page Include="Views\TickerWidget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Native.cs" />
+    <Compile Include="Helpers\Native.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -121,27 +171,32 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="GDax.ruleset" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="gdax.ico" />
-    <Content Include="gdax.svg" />
+    <Resource Include="Resources\gdax.ico" />
+    <Content Include="Resources\gdax.svg" />
   </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.6.1">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.6.1 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

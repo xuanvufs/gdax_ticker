@@ -1,6 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using GDax.Attributes;
+using GDax.Converters;
+using Newtonsoft.Json;
 
-namespace GDax
+namespace GDax.Enums
 {
     [JsonConverter(typeof(CoinToProductIdConverter))]
     public enum CoinKind

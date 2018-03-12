@@ -1,9 +1,11 @@
-﻿using System;
+﻿using GDax.Attributes;
+using GDax.Enums;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 
-namespace GDax
+namespace GDax.Converters
 {
     public class CoinToPathConverter : IValueConverter
     {

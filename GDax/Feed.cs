@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using GDax.Enums;
+using GDax.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
@@ -12,7 +13,14 @@ namespace GDax
 {
     public delegate void PriceUpdatedEventHandler(CoinKind coin, TickerResponse data);
 
-    public class Feed : IDisposable
+    public interface IFeed
+    {
+        event PriceUpdatedEventHandler PriceUpdated;
+        void Subscribe(CoinKind kind);
+        void Unsubscribe(CoinKind kind);
+    }
+
+    public class Feed : IFeed, IDisposable
     {
         public event PriceUpdatedEventHandler PriceUpdated;
         private List<CoinKind> _subscribed = new List<CoinKind>();

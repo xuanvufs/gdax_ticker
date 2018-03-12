@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using GDax.Attributes;
+using GDax.Enums;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -7,7 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GDax
+namespace GDax.Converters
 {
     public class CoinToProductIdConverter : JsonConverter
     {

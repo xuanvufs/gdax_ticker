@@ -3,9 +3,9 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace GDax
+namespace GDax.Helpers
 {
-    public static class Helper
+    public static class Debugging
     {
         public static void CreateDebugConsole()
         {

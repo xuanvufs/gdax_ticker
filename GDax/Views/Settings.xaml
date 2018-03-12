@@ -1,0 +1,39 @@
+﻿<Window x:Class="GDax.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GDax.Views.Models"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Settings" Width="525" Height="360" Icon="gdax.ico" WindowStyle="None" AllowsTransparency="True" Background="Transparent">
+    <Window.DataContext>
+        <local:SettingsDataModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <materialDesign:Card x:Name="SettingsCard" Grid.Row="0" VerticalAlignment="Stretch">
+            <DockPanel>
+                <materialDesign:ColorZone Padding="10" materialDesign:ShadowAssist.ShadowDepth="Depth2" Mode="PrimaryDark" DockPanel.Dock="Top" MouseDown="MoveWindow">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Width="20" Height="20" Padding="0" Margin="0" Click="CloseWindow">
+                            <materialDesign:PackIcon Kind="Close" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
+                        </Button>
+                        <Button DockPanel.Dock="Right" Width="20" Height="20" Padding="0" Margin="0 0 5 0" Click="MaximizeWindow">
+                            <materialDesign:PackIcon Kind="WindowMaximize" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </Button>
+                        <Button DockPanel.Dock="Right" Width="20" Height="20" Padding="0" Margin="0 0 5 0" Click="MinimizeWindow">
+                            <materialDesign:PackIcon Kind="WindowMinimize" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
+                        </Button>
+                        <TextBlock FontSize="15" FontFamily="Tahoma" Text="{Binding Title}"/>
+                    </DockPanel>
+                </materialDesign:ColorZone>
+                <Border BorderThickness="1 0 1 1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Margin="0 0 0 0" DockPanel.Dock="Bottom" CornerRadius="0 0 5 5">
+                    
+                </Border>
+            </DockPanel>
+        </materialDesign:Card>
+    </Grid>
+</Window>

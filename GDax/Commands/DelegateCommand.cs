@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace GDax
+namespace GDax.Commands
 {
     public delegate void CommandHandler(object parameter);
 
