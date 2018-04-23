@@ -16,34 +16,48 @@ namespace GDax
     public interface IFeed
     {
         event PriceUpdatedEventHandler PriceUpdated;
+
         void Subscribe(CoinKind kind);
+
         void Unsubscribe(CoinKind kind);
     }
 
     public class Feed : IFeed, IDisposable
     {
         public event PriceUpdatedEventHandler PriceUpdated;
+
+        private static readonly object _connectionLock = new object();
+        private bool _connecting = false;
+        private int[] _retryFactor = new int[] { 0, 1, 2, 4, 8 };
+        private int _connectionAttempts = 0;
         private List<CoinKind> _subscribed = new List<CoinKind>();
+        private List<CoinKind> _subscriptions = new List<CoinKind>();
         private Dictionary<CoinKind, long> _lastSequence = new Dictionary<CoinKind, long>();
         private CancellationTokenSource _token;
         private WebSocket _socket;
 
         public void Subscribe(CoinKind kind)
         {
-            if (_subscribed.Contains(kind)) return;
+            if (_subscribed.Contains(kind))
+            {
+                EnsureSubscription();
+                return;
+            }
 
+            _subscribed.Add(kind);
             EnsureConnection();
-
-            _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None).Wait();
         }
 
         public void Unsubscribe(CoinKind kind)
         {
-            if (!_subscribed.Contains(kind)) return;
+            if (!_subscribed.Contains(kind))
+            {
+                EnsureSubscription();
+                return;
+            }
 
+            _subscribed.Remove(kind);
             EnsureConnection();
-
-            _socket.SendAsync(GetRequestMessage(RequestType.Unsubscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None).Wait();
 
             if (_lastSequence.ContainsKey(kind))
                 _lastSequence.Remove(kind);
@@ -51,7 +65,28 @@ namespace GDax
 
         private void EnsureConnection()
         {
-            if (_socket != null && _socket.State == WebSocketState.Open) return;
+            var retry = false;
+
+            // Ensure that this is only ran once concurrently
+            if (_connecting) return;
+            lock (_connectionLock)
+            {
+                if (_connecting) return;
+                _connecting = true;
+            }
+
+            // If the connection is already establish then don't do anything.
+            if (_socket != null && _socket.State == WebSocketState.Open)
+            {
+                EnsureSubscription();
+
+                lock (_connectionLock)
+                {
+                    _connecting = false;
+                }
+                return;
+            }
+
             if (_socket != null)
             {
                 _token?.Cancel();
@@ -62,11 +97,68 @@ namespace GDax
 
             _token = new CancellationTokenSource();
             _socket = SystemClientWebSocket.CreateClientWebSocket();
-            _socket.ConnectAsync(new Uri("wss://ws-feed.gdax.com"), CancellationToken.None).Wait();
 
-            // TODO: Resubscribe to existing subscriptions
+            try
+            {
+                Console.WriteLine("Attempting to connect to GDAX API...");
+                _socket.ConnectAsync(new Uri("wss://ws-feed.gdax.com"), CancellationToken.None).Wait();
+                Console.WriteLine("Connected");
 
-            Task.Run(() => ReceiveData());
+                EnsureSubscription();
+
+                _connectionAttempts = 0;
+                Task.Run(() => ReceiveData());
+            }
+            catch (AggregateException ex)
+            {
+                if (ex.InnerExceptions.Any(e => e is WebSocketException))
+                {
+                    _subscriptions.Clear();
+                    Console.WriteLine($"Failed to connect to GDAX API. Error: {ex.InnerExceptions[0].Message}");
+                    retry = true;
+                }
+            }
+            finally
+            {
+                // Don't forget to unlock
+                lock (_connectionLock)
+                {
+                    _connecting = false;
+                }
+
+                if (retry)
+                {
+                    // Round robin exponential delay with a 5 minute cap.
+                    var delay = Math.Min(300, _connectionAttempts * _retryFactor[_connectionAttempts++ % _retryFactor.Length]);
+                    Console.WriteLine($"Will retry connection in {delay} seconds.");
+
+                    Task.Delay(delay * 1000).Wait();
+                    Task.Run(() => EnsureConnection());
+                }
+            }
+        }
+
+        private void EnsureSubscription()
+        {
+            if (_socket != null && _socket.State == WebSocketState.Open)
+            {
+                // Subscribe to all CoinKind that doesn't yet have a subscription
+                var notYetSubscribed = _subscribed.Where(c => !_subscriptions.Any(s => s == c));
+
+                foreach (var kind in notYetSubscribed)
+                {
+                    Console.WriteLine($"Subscribing to {kind}");
+                    _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                // Unsubscribe where subscription still exist
+                var notYetUnsubscribed = _subscriptions.Where(c => !_subscribed.Any(s => s == c));
+
+                foreach (var kind in notYetUnsubscribed)
+                {
+                    Console.WriteLine($"Unsubscribing from {kind}");
+                    _socket.SendAsync(GetRequestMessage(RequestType.Unsubscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+            }
         }
 
         private void ReceiveData()
@@ -86,7 +178,7 @@ namespace GDax
                     {
                         var tickerChannel = JsonConvert.DeserializeObject<SubscriptionResponse>(json)?.Channels?.FirstOrDefault(c => c.Type == ChannelType.Ticker);
                         if (tickerChannel != null)
-                            _subscribed = tickerChannel.Products;
+                            _subscriptions = tickerChannel.Products;
                     }
                     else if (response.Type == ResponseType.Ticker)
                     {
@@ -113,6 +205,12 @@ namespace GDax
                     if (ex.InnerException is TaskCanceledException)
                         break;
 
+                    if (ex.InnerExceptions.Any(e => e is WebSocketException))
+                    {
+                        _subscriptions.Clear();
+                        EnsureConnection();
+                        return;
+                    }
                     throw;
                 }
             }
