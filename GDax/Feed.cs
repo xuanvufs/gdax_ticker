@@ -174,13 +174,13 @@ namespace GDax
                     var response = JsonConvert.DeserializeObject<ResponseMessage>(json);
                     Console.WriteLine(json);
 
-                    if (response.Type == ResponseType.Subscriptions)
+                    if (response?.Type == ResponseType.Subscriptions)
                     {
                         var tickerChannel = JsonConvert.DeserializeObject<SubscriptionResponse>(json)?.Channels?.FirstOrDefault(c => c.Type == ChannelType.Ticker);
                         if (tickerChannel != null)
                             _subscriptions = tickerChannel.Products;
                     }
-                    else if (response.Type == ResponseType.Ticker)
+                    else if (response?.Type == ResponseType.Ticker)
                     {
                         var ticker = JsonConvert.DeserializeObject<TickerResponse>(json);
                         if (ticker != null)
@@ -202,12 +202,13 @@ namespace GDax
                 }
                 catch (AggregateException ex)
                 {
+                    _subscriptions.Clear();
+
                     if (ex.InnerException is TaskCanceledException)
                         break;
 
                     if (ex.InnerExceptions.Any(e => e is WebSocketException))
                     {
-                        _subscriptions.Clear();
                         EnsureConnection();
                         return;
                     }
