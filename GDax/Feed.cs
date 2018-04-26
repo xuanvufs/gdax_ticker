@@ -3,6 +3,7 @@ using GDax.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
@@ -100,9 +101,9 @@ namespace GDax
 
             try
             {
-                Console.WriteLine("Attempting to connect to GDAX API...");
+                Debug.WriteLine("Attempting to connect to GDAX API...");
                 _socket.ConnectAsync(new Uri("wss://ws-feed.gdax.com"), CancellationToken.None).Wait();
-                Console.WriteLine("Connected");
+                Debug.WriteLine("Connected");
 
                 EnsureSubscription();
 
@@ -114,7 +115,7 @@ namespace GDax
                 if (ex.InnerExceptions.Any(e => e is WebSocketException))
                 {
                     _subscriptions.Clear();
-                    Console.WriteLine($"Failed to connect to GDAX API. Error: {ex.InnerExceptions[0].Message}");
+                    Debug.WriteLine($"Failed to connect to GDAX API. Error: {ex.InnerExceptions[0].Message}");
                     retry = true;
                 }
             }
@@ -130,7 +131,7 @@ namespace GDax
                 {
                     // Round robin exponential delay with a 5 minute cap.
                     var delay = Math.Min(300, _connectionAttempts * _retryFactor[_connectionAttempts++ % _retryFactor.Length]);
-                    Console.WriteLine($"Will retry connection in {delay} seconds.");
+                    Debug.WriteLine($"Will retry connection in {delay} seconds.");
 
                     Task.Delay(delay * 1000).Wait();
                     Task.Run(() => EnsureConnection());
@@ -147,7 +148,7 @@ namespace GDax
 
                 foreach (var kind in notYetSubscribed)
                 {
-                    Console.WriteLine($"Subscribing to {kind}");
+                    Debug.WriteLine($"Subscribing to {kind}");
                     _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
                 // Unsubscribe where subscription still exist
@@ -155,7 +156,7 @@ namespace GDax
 
                 foreach (var kind in notYetUnsubscribed)
                 {
-                    Console.WriteLine($"Unsubscribing from {kind}");
+                    Debug.WriteLine($"Unsubscribing from {kind}");
                     _socket.SendAsync(GetRequestMessage(RequestType.Unsubscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
@@ -170,9 +171,9 @@ namespace GDax
                     var receivedBytes = new ArraySegment<byte>(new byte[1024]);
                     _socket.ReceiveAsync(receivedBytes, _token.Token).Wait();
 
-                    var json = Encoding.UTF8.GetString(receivedBytes.Array);
+                    var json = Encoding.UTF8.GetString(receivedBytes.Array).Trim('\0');
+                    Debug.WriteLine(json, "Data Received");
                     var response = JsonConvert.DeserializeObject<ResponseMessage>(json);
-                    Console.WriteLine(json);
 
                     if (response?.Type == ResponseType.Subscriptions)
                     {
