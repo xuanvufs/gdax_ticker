@@ -43,14 +43,13 @@ namespace GDax.Views
         private void TickerLoaded(object sender, RoutedEventArgs e)
         {
             var wndHlp = new WindowInteropHelper(this);
-            var style = (int)Native.GetWindowLong(wndHlp.Handle, (int)WindowLongFlags.GWL_EXSTYLE) | (int) WindowStylesEx.WS_EX_TOOLWINDOW;
+            var style = (int)Native.GetWindowLong(wndHlp.Handle, (int)WindowLongFlags.GWL_EXSTYLE) | (int)WindowStylesEx.WS_EX_TOOLWINDOW;
 
             Native.SetWindowLong(wndHlp.Handle, (int)WindowLongFlags.GWL_EXSTYLE, (IntPtr)style);
         }
 
         private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-
         }
     }
 }

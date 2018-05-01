@@ -12,15 +12,15 @@ using System.Threading.Tasks;
 
 namespace GDax
 {
-    public delegate void PriceUpdatedEventHandler(CoinKind coin, TickerResponse data);
+    public delegate void PriceUpdatedEventHandler(IProduct product, TickerResponse data);
 
     public interface IFeed
     {
         event PriceUpdatedEventHandler PriceUpdated;
 
-        void Subscribe(CoinKind kind);
+        void Subscribe(IProduct product);
 
-        void Unsubscribe(CoinKind kind);
+        void Unsubscribe(IProduct product);
     }
 
     public class Feed : IFeed, IDisposable
@@ -31,37 +31,37 @@ namespace GDax
         private bool _connecting = false;
         private int[] _retryFactor = new int[] { 0, 1, 2, 4, 8 };
         private int _connectionAttempts = 0;
-        private List<CoinKind> _subscribed = new List<CoinKind>();
-        private List<CoinKind> _subscriptions = new List<CoinKind>();
-        private Dictionary<CoinKind, long> _lastSequence = new Dictionary<CoinKind, long>();
+        private List<IProduct> _subscribed = new List<IProduct>();
+        private List<IProduct> _subscriptions = new List<IProduct>();
+        private Dictionary<IProduct, long> _lastSequence = new Dictionary<IProduct, long>();
         private CancellationTokenSource _token;
         private WebSocket _socket;
 
-        public void Subscribe(CoinKind kind)
+        public void Subscribe(IProduct product)
         {
-            if (_subscribed.Contains(kind))
+            if (_subscribed.Contains(product))
             {
                 EnsureSubscription();
                 return;
             }
 
-            _subscribed.Add(kind);
+            _subscribed.Add(product);
             EnsureConnection();
         }
 
-        public void Unsubscribe(CoinKind kind)
+        public void Unsubscribe(IProduct product)
         {
-            if (!_subscribed.Contains(kind))
+            if (!_subscribed.Contains(product))
             {
                 EnsureSubscription();
                 return;
             }
 
-            _subscribed.Remove(kind);
+            _subscribed.Remove(product);
             EnsureConnection();
 
-            if (_lastSequence.ContainsKey(kind))
-                _lastSequence.Remove(kind);
+            if (_lastSequence.ContainsKey(product))
+                _lastSequence.Remove(product);
         }
 
         private void EnsureConnection()
@@ -146,18 +146,18 @@ namespace GDax
                 // Subscribe to all CoinKind that doesn't yet have a subscription
                 var notYetSubscribed = _subscribed.Where(c => !_subscriptions.Any(s => s == c));
 
-                foreach (var kind in notYetSubscribed)
+                foreach (var product in notYetSubscribed)
                 {
-                    Debug.WriteLine($"Subscribing to {kind}");
-                    _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None);
+                    Debug.WriteLine($"Subscribing to {product.ProductId}");
+                    _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, product), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
                 // Unsubscribe where subscription still exist
                 var notYetUnsubscribed = _subscriptions.Where(c => !_subscribed.Any(s => s == c));
 
-                foreach (var kind in notYetUnsubscribed)
+                foreach (var product in notYetUnsubscribed)
                 {
-                    Debug.WriteLine($"Unsubscribing from {kind}");
-                    _socket.SendAsync(GetRequestMessage(RequestType.Unsubscribe, kind), WebSocketMessageType.Text, true, CancellationToken.None);
+                    Debug.WriteLine($"Unsubscribing from {product.ProductId}");
+                    _socket.SendAsync(GetRequestMessage(RequestType.Unsubscribe, product), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
             }
         }
@@ -218,7 +218,7 @@ namespace GDax
             }
         }
 
-        private ArraySegment<byte> GetRequestMessage(RequestType type, params CoinKind[] kind)
+        private ArraySegment<byte> GetRequestMessage(RequestType type, params IProduct[] kind)
         {
             var message = new RequestMessage
             {

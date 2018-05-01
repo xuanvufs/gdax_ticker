@@ -10,6 +10,6 @@ namespace GDax.Models
         public ChannelType Type { get; set; }
 
         [JsonProperty("product_ids")]
-        public List<CoinKind> Products { get; set; }
+        public List<IProduct> Products { get; set; }
     }
 }

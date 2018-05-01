@@ -1,9 +1,10 @@
 ﻿using GDax.Commands;
 using GDax.Enums;
+using GDax.Models;
 using GDax.Views;
 using GDax.Views.Models;
 using StructureMap;
-using System;
+using System.Collections.Generic;
 
 namespace GDax.IoC
 {
@@ -11,6 +12,14 @@ namespace GDax.IoC
     {
         public static IContainer Init()
         {
+            var currencyPairs = new List<CurrencyPair>()
+            {
+                new CurrencyPair(Currency.BitCoin, Currency.Dollar),
+                new CurrencyPair(Currency.Etherium, Currency.Dollar),
+                new CurrencyPair(Currency.LiteCoin, Currency.Dollar),
+                new CurrencyPair(Currency.BitCoinCash, Currency.Dollar)
+            };
+
             var container = new Container(a =>
             {
                 a.Scan(b =>
@@ -23,12 +32,11 @@ namespace GDax.IoC
                 a.For<ISettingsFactory>().Singleton().Use<SettingsFactory>();
                 a.For<IFeed>().Singleton().Use<Feed>();
 
-                foreach (CoinKind kind in Enum.GetValues(typeof(CoinKind)))
+                foreach (var product in currencyPairs)
                 {
-                    a.For<IMenuItem>().Add<TickerItem>().Ctor<CoinKind>("kind").Is(kind).Named(kind.ToString());
-                    a.For<ITickerViewModel>().Add<TickerViewModel>().Ctor<CoinKind>("kind").Is(kind).Named(kind.ToString());
-                    a.For<TickerWidget>().Add<TickerWidget>().Ctor<ITickerViewModel>("model").Is(c => c.GetInstance<ITickerViewModel>(kind.ToString()));
-//                    a.For<ITickerViewModel>().Singleton().Add<TickerViewModel>().Ctor<CoinKind>("kind").Is(kind).Named(kind.ToString());
+                    a.For<IMenuItem>().Add<TickerItem>().Ctor<IProduct>("product").Is(product).Named(product.ProductId);
+                    a.For<ITickerViewModel>().Add<TickerViewModel>().Ctor<IProduct>("product").Is(product).Named(product.ProductId);
+                    a.For<TickerWidget>().Add<TickerWidget>().Ctor<ITickerViewModel>("model").Is(c => c.GetInstance<ITickerViewModel>(product.ProductId));
                 }
             });
 

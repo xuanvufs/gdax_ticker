@@ -7,7 +7,7 @@
             <ControlTemplate x:Key="MenuSeparatorTemplate">
                 <Separator>
                     <Separator.Style>
-                        <Style TargetType="{x:Type Separator}" BasedOn="{StaticResource ResourceKey={x:Static MenuItem.SeparatorStyleKey}}"/>
+                        <Style TargetType="{x:Type Separator}" BasedOn="{StaticResource ResourceKey={x:Static MenuItem.SeparatorStyleKey}}" />
                     </Separator.Style>
                 </Separator>
             </ControlTemplate>
@@ -16,10 +16,10 @@
                 <Setter Property="Command" Value="{Binding Command}" />
                 <Setter Property="IsCheckable" Value="{Binding Checkable}" />
                 <Setter Property="IsChecked" Value="{Binding Checked}" />
-                <Setter Property="CommandParameter" Value="{Binding Parameter}"/>
+                <Setter Property="CommandParameter" Value="{Binding Parameter}" />
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding}" Value="{x:Null}">
-                        <Setter Property="Template" Value="{StaticResource MenuSeparatorTemplate}"/>
+                        <Setter Property="Template" Value="{StaticResource MenuSeparatorTemplate}" />
                     </DataTrigger>
                 </Style.Triggers>
             </Style>

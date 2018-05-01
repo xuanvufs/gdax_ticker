@@ -108,14 +108,17 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\TrayMenu.cs" />
+    <Compile Include="Enums\Currency.cs" />
+    <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Models\Channel.cs" />
     <Compile Include="Converters\ChannelListConverter.cs" />
     <Compile Include="Enums\ChannelType.cs" />
-    <Compile Include="Enums\CoinKind.cs" />
-    <Compile Include="Converters\CoinToPathConverter.cs" />
-    <Compile Include="Converters\CoinToProductIdConverter.cs" />
+    <Compile Include="Models\CurrencyPair.cs" />
+    <Compile Include="Converters\CurrencyIconConverter.cs" />
+    <Compile Include="Converters\ProductIdConverter.cs" />
     <Compile Include="Commands\IMenuItem.cs" />
     <Compile Include="Commands\SimpleItem.cs" />
+    <Compile Include="Models\IProduct.cs" />
     <Compile Include="Views\Models\TickerViewModel.cs" />
     <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="GlobalSuppressions.cs" />
@@ -126,7 +129,7 @@
     <Compile Include="IoC\Bootstrapper.cs" />
     <Compile Include="IoC\SettingsFactory.cs" />
     <Compile Include="IoC\SettingsTypeGenerator.cs" />
-    <Compile Include="Attributes\ProductIdAttribute.cs" />
+    <Compile Include="Attributes\TickerSymbolAttribute.cs" />
     <Compile Include="Models\RequestMessage.cs" />
     <Compile Include="Enums\RequestType.cs" />
     <Compile Include="Models\ResponseMessage.cs" />

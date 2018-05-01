@@ -9,6 +9,7 @@ namespace GDax.Commands
     {
         private readonly CommandHandler _handler;
         private readonly Predicate<object> _canExecute;
+
         public event EventHandler CanExecuteChanged;
 
         public DelegateCommand(CommandHandler handler) : this(handler, null)

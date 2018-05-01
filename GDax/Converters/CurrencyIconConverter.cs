@@ -1,5 +1,6 @@
 ﻿using GDax.Attributes;
 using GDax.Enums;
+using GDax.Models;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -7,16 +8,16 @@ using System.Windows.Data;
 
 namespace GDax.Converters
 {
-    public class CoinToPathConverter : IValueConverter
+    public class CurrencyIconConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (!(value is CoinKind))
+            var product = value as CurrencyPair;
+            if (product == null)
                 throw new NotImplementedException();
 
-            var type = typeof(CoinKind);
-            var enumName = Enum.GetName(type, value);
-            var icon = type.GetMember(enumName).FirstOrDefault()?.GetCustomAttributes(typeof(IconAttribute), false).FirstOrDefault() as IconAttribute;
+            var type = typeof(Currency);
+            var icon = type.GetMember(product.Base.ToString()).FirstOrDefault()?.GetCustomAttributes(typeof(IconAttribute), false).FirstOrDefault() as IconAttribute;
 
             return icon?.Path;
         }

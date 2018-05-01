@@ -24,7 +24,7 @@ namespace GDax.Models
         public long Sequence { get; set; }
 
         [JsonProperty("product_id")]
-        public CoinKind ProductId { get; set; }
+        public IProduct ProductId { get; set; }
 
         [JsonProperty("price")]
         public double Price { get; set; }

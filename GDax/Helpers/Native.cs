@@ -1,24 +1,21 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GDax.Helpers
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    struct DATA_BLOB
+    internal struct DATA_BLOB
     {
         public int cbData;
         public IntPtr pbData;
     }
 
     [Flags]
-    enum CryptProtectFlags
+    internal enum CryptProtectFlags
     {
         // for remote-access situations where ui is not an option
         // if UI was specified on protect or unprotect operation, the call
@@ -228,12 +225,12 @@ namespace GDax.Helpers
         public static extern IntPtr GetWindowLong(IntPtr hWnd, int nIndex);
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
-        static extern IntPtr IntSetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+        private static extern IntPtr IntSetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLong", SetLastError = true)]
-        static extern Int32 IntSetWindowLong(IntPtr hWnd, int nIndex, Int32 dwNewLong);
+        private static extern Int32 IntSetWindowLong(IntPtr hWnd, int nIndex, Int32 dwNewLong);
 
-        static int IntPtrToInt32(IntPtr intPtr)
+        private static int IntPtrToInt32(IntPtr intPtr)
         {
             return unchecked((int)intPtr.ToInt64());
         }
@@ -246,17 +243,17 @@ namespace GDax.Helpers
 
         [DllImport("Crypt32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool CryptProtectData(ref DATA_BLOB pDataIn, String szDataDescr, ref DATA_BLOB pOptionalEntropy, IntPtr pvReserved, IntPtr pPromptStruct, CryptProtectFlags dwFlags, ref DATA_BLOB pDataOut);
+        private static extern bool CryptProtectData(ref DATA_BLOB pDataIn, String szDataDescr, ref DATA_BLOB pOptionalEntropy, IntPtr pvReserved, IntPtr pPromptStruct, CryptProtectFlags dwFlags, ref DATA_BLOB pDataOut);
 
         [DllImport("Crypt32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool CryptUnprotectData(ref DATA_BLOB pDataIn, String szDataDescr, ref DATA_BLOB pOptionalEntropy, IntPtr pvReserved, IntPtr pPromptStruct, CryptProtectFlags dwFlags, ref DATA_BLOB pDataOut);
+        private static extern bool CryptUnprotectData(ref DATA_BLOB pDataIn, String szDataDescr, ref DATA_BLOB pOptionalEntropy, IntPtr pvReserved, IntPtr pPromptStruct, CryptProtectFlags dwFlags, ref DATA_BLOB pDataOut);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern void ZeroMemory(IntPtr handle, int length);
+        private static extern void ZeroMemory(IntPtr handle, int length);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-        static extern IntPtr LocalFree(IntPtr handle);
+        private static extern IntPtr LocalFree(IntPtr handle);
 
         public static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
         {

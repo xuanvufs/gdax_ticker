@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="Settings" Width="525" Height="360" Icon="gdax.ico" WindowStyle="None" AllowsTransparency="True" Background="Transparent">
     <Window.DataContext>
-        <local:SettingsDataModel/>
+        <local:SettingsDataModel />
     </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
@@ -22,16 +22,15 @@
                             <materialDesign:PackIcon Kind="Close" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
                         </Button>
                         <Button DockPanel.Dock="Right" Width="20" Height="20" Padding="0" Margin="0 0 5 0" Click="MaximizeWindow">
-                            <materialDesign:PackIcon Kind="WindowMaximize" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <materialDesign:PackIcon Kind="WindowMaximize" VerticalAlignment="Center" HorizontalAlignment="Center" />
                         </Button>
                         <Button DockPanel.Dock="Right" Width="20" Height="20" Padding="0" Margin="0 0 5 0" Click="MinimizeWindow">
                             <materialDesign:PackIcon Kind="WindowMinimize" VerticalAlignment="Center" HorizontalAlignment="Center"></materialDesign:PackIcon>
                         </Button>
-                        <TextBlock FontSize="15" FontFamily="Tahoma" Text="{Binding Title}"/>
+                        <TextBlock FontSize="15" FontFamily="Tahoma" Text="{Binding Title}" />
                     </DockPanel>
                 </materialDesign:ColorZone>
                 <Border BorderThickness="1 0 1 1" BorderBrush="{DynamicResource {x:Static SystemColors.ActiveBorderBrushKey}}" Margin="0 0 0 0" DockPanel.Dock="Bottom" CornerRadius="0 0 5 5">
-                    
                 </Border>
             </DockPanel>
         </materialDesign:Card>

@@ -1,11 +1,12 @@
-﻿using System;
+﻿using GDax.Helpers;
+using Microsoft.CSharp;
+using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -14,8 +15,6 @@ using System.Text;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using Microsoft.CSharp;
-using GDax.Helpers;
 
 namespace GDax.IoC
 {
@@ -82,7 +81,6 @@ namespace GDax.IoC
                     sb.AppendLine(error.ErrorText);
                 throw new InvalidOperationException($"Compiler errors:{Environment.NewLine}{sb}");
             }
-
 
             var generatedTypes = result.CompiledAssembly.GetTypes();
             _settingsType = generatedTypes.First(t => typeof(ApplicationSettingsBase).IsAssignableFrom(t));
@@ -198,7 +196,6 @@ namespace GDax.IoC
                 {
                     Left = new CodeFieldReferenceExpression(new CodeThisReferenceExpression(), $"_{propertyInfo.Name}"),
                     Right = new CodePrimitiveExpression(null)
-
                 });
             }
             else

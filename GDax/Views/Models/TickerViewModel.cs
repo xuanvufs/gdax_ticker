@@ -1,5 +1,4 @@
-﻿using GDax.Enums;
-using GDax.IoC;
+﻿using GDax.IoC;
 using GDax.Models;
 using GDax.Settings;
 using System.ComponentModel;
@@ -10,7 +9,7 @@ namespace GDax.Views.Models
     public interface ITickerViewModel
     {
         ITickerSetting Settings { get; }
-        CoinKind Kind { get; }
+        IProduct Product { get; }
         Brush NonActiveBackground { get; }
         Brush Background { get; }
         Brush Foreground { get; }
@@ -24,21 +23,21 @@ namespace GDax.Views.Models
         private double _price;
         private double _openPrice;
 
-        public TickerViewModel(ISettingsFactory factory, IFeed feed, CoinKind kind)
+        public TickerViewModel(ISettingsFactory factory, IFeed feed, IProduct product)
         {
-            Kind = kind;
-            Settings = factory.GetOrCreateSetting<ITickerSetting>(kind.ToString());
+            Product = product;
+            Settings = factory.GetOrCreateSetting<ITickerSetting>(product.ProductId);
             NonActiveBackground = new SolidColorBrush(new Color { R = 255, G = 255, B = 255, A = 128 });
 
             feed.PriceUpdated += OnPriceUpdate;
 
             if (Settings.Subscribed)
-                feed.Subscribe(Kind);
+                feed.Subscribe(Product);
         }
 
-        private void OnPriceUpdate(CoinKind kind, TickerResponse data)
+        private void OnPriceUpdate(IProduct product, TickerResponse data)
         {
-            if (kind != Kind) return;
+            if (Product.CompareTo(product) != 0) return;
 
             Price = data.Price;
             OpenPrice = data.OpenPrice;
@@ -46,7 +45,7 @@ namespace GDax.Views.Models
 
         public ITickerSetting Settings { get; }
 
-        public CoinKind Kind { get; }
+        public IProduct Product { get; }
 
         public Brush NonActiveBackground { get; }
 

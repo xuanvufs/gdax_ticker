@@ -19,7 +19,7 @@ namespace GDax.Helpers
             // console's input buffer. Similarly, you can specify the CONOUT$ value to get a handle to a console's active
             // screen buffer."
 
-            // Get the handle to CONOUT$.    
+            // Get the handle to CONOUT$.
             var stdHandle = Native.CreateFile("CONOUT$", Native.GENERIC_WRITE, Native.FILE_SHARE_WRITE, 0, Native.OPEN_EXISTING, 0, 0);
             var safeFileHandle = new SafeFileHandle(stdHandle, true);
             var standardOutput = new StreamWriter(new FileStream(safeFileHandle, FileAccess.Write), Encoding.GetEncoding(Native.MY_CODE_PAGE))

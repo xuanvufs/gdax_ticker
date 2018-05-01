@@ -9,12 +9,12 @@
         Title="TickerWidget" Height="50" Width="150" WindowStyle="None" Background="{x:Null}"
         FontSize="18" Topmost="True" ShowInTaskbar="False" AllowsTransparency="True" Loaded="TickerLoaded">
     <Window.Resources>
-        <local:CoinToPathConverter x:Key="PathConverter"/>
+        <local:CurrencyIconConverter x:Key="PathConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
 
     <Window.Visibility>
-        <Binding Path="Settings.Subscribed" Converter="{StaticResource BooleanToVisibilityConverter}"/>
+        <Binding Path="Settings.Subscribed" Converter="{StaticResource BooleanToVisibilityConverter}" />
     </Window.Visibility>
 
     <Window.Top>
@@ -22,21 +22,21 @@
     </Window.Top>
 
     <Window.Left>
-        <Binding Path="Settings.Left"/>
+        <Binding Path="Settings.Left" />
     </Window.Left>
 
     <materialDesign:Card x:Name="tickerCard" MouseDown="MoveTicker" MouseEnter="MouseOver" MouseLeave="MouseOut" MaxHeight="50">
         <Grid Margin="5">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="32"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="32" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <DockPanel Grid.Column="0">
-                <Path Stretch="Uniform" Data="{Binding Kind, Converter={StaticResource PathConverter}}" Fill="{Binding Foreground}"/>
+                <Path Stretch="Uniform" Data="{Binding Product, Converter={StaticResource PathConverter}}" Fill="{Binding Foreground}" />
             </DockPanel>
             <StackPanel Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 3 0">
-                <TextBlock HorizontalAlignment="Right" Margin="0 0 0 1" Text="{Binding Price, StringFormat={}{0:C}}"/>
-                <TextBlock HorizontalAlignment="Right" FontSize="12" Text="{Binding Price24, StringFormat={}{0:P2}}"/>
+                <TextBlock HorizontalAlignment="Right" Margin="0 0 0 1" Text="{Binding Price, StringFormat={}{0:C}}" />
+                <TextBlock HorizontalAlignment="Right" FontSize="12" Text="{Binding Price24, StringFormat={}{0:P2}}" />
             </StackPanel>
         </Grid>
     </materialDesign:Card>

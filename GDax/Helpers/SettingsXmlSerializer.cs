@@ -23,7 +23,7 @@ namespace GDax.Helpers
                     if (propertyType.IsPrimitive || propertyType == typeof(string) || property.PropertyType == typeof(Guid))
                         valueString = Convert.ToString(value);
                     else if (propertyType == typeof(SecureString))
-                        valueString = Convert.ToBase64String(Native.GetEncryptedData((SecureString) value));
+                        valueString = Convert.ToBase64String(Native.GetEncryptedData((SecureString)value));
                     else if (typeConvertible.IsAssignableFrom(propertyType))
                         valueString = (string)Convert.ChangeType(value, typeof(string));
 

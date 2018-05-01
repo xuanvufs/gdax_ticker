@@ -1,7 +1,7 @@
 ﻿using System.Windows.Input;
 
 namespace GDax.Commands
-{ 
+{
     public interface IMenuItem
     {
         string Text { get; }

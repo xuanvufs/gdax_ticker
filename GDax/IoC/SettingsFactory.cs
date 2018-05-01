@@ -1,17 +1,18 @@
-﻿using System;
+﻿using GDax.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.IO;
 using System.Xml;
-using GDax.Helpers;
 
 namespace GDax.IoC
 {
     public interface ISettingsFactory
     {
         T GetOrCreateSetting<T>(string instanceName = null);
+
         void SaveSettings();
     }
 
@@ -21,7 +22,6 @@ namespace GDax.IoC
         private static readonly XmlDocument m_EscapeDoc = new XmlDocument();
         private readonly XmlElement _escapeElement = m_EscapeDoc.CreateElement("escaper");
         private string _configPath;
-
 
         public override SettingsPropertyValueCollection GetPropertyValues(SettingsContext context, SettingsPropertyCollection properties)
         {
@@ -63,7 +63,7 @@ namespace GDax.IoC
                 var setting = settings.Get(property.Name);
                 if (setting == null)
                 {
-                    setting = new SettingElement { Name = property.Name};
+                    setting = new SettingElement { Name = property.Name };
                     settings.Add(setting);
                 }
 
