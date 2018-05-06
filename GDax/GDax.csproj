@@ -119,6 +119,7 @@
     <Compile Include="Commands\IMenuItem.cs" />
     <Compile Include="Commands\SimpleItem.cs" />
     <Compile Include="Models\IProduct.cs" />
+    <Compile Include="Settings\ProductsConfigurationSection.cs" />
     <Compile Include="Views\Models\TickerViewModel.cs" />
     <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="GlobalSuppressions.cs" />

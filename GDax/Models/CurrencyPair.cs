@@ -16,6 +16,11 @@ namespace GDax.Models
 
         public CurrencyPair(Currency baseCurrency, Currency targetCurrency)
         {
+            if(baseCurrency == targetCurrency)
+            {
+                throw new ArgumentException($"Currency pair cannot have the same base and target currency. Base: [{baseCurrency}], Target: [{targetCurrency}]");
+            }
+
             Base = baseCurrency;
             Target = targetCurrency;
 
@@ -48,8 +53,8 @@ namespace GDax.Models
                 {
                     try
                     {
-                        var b = Utils.FromTickerSymbol(pair[0]);
-                        var t = Utils.FromTickerSymbol(pair[1]);
+                        var b = Utils.ParseTickerSymbol(pair[0]);
+                        var t = Utils.ParseTickerSymbol(pair[1]);
 
                         currencyPair = new CurrencyPair(b, t);
 
