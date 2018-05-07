@@ -1,4 +1,5 @@
-﻿using GDax.IoC;
+﻿using GDax.Helpers;
+using GDax.IoC;
 using GDax.Models;
 using GDax.Settings;
 using System.ComponentModel;
@@ -15,13 +16,15 @@ namespace GDax.Views.Models
         Brush Foreground { get; }
         double Price { get; set; }
         double OpenPrice { get; set; }
-        double Price24 { get; }
+        double Percentage { get; }
+        double Volume { get; set; }
     }
 
     public class TickerViewModel : ITickerViewModel, INotifyPropertyChanged
     {
         private double _price;
         private double _openPrice;
+        private double _volume;
 
         public TickerViewModel(ISettingsFactory factory, IFeed feed, IProduct product)
         {
@@ -41,18 +44,16 @@ namespace GDax.Views.Models
 
             Price = data.Price;
             OpenPrice = data.OpenPrice;
+            Volume = data.Volume24Hour;
         }
 
         public ITickerSetting Settings { get; }
-
         public IProduct Product { get; }
-
-        public Brush NonActiveBackground { get; }
-
+        public Brush NonActiveBackground { get; set; }
         public Brush Background => Brushes.White;
-
         public Brush Foreground => Brushes.Silver;
-
+        public Brush PriceForeground { get; private set; }
+        public Brush PercentageForeground { get; private set; }
         public event PropertyChangedEventHandler PropertyChanged;
 
         public double Price
@@ -60,9 +61,23 @@ namespace GDax.Views.Models
             get { return _price; }
             set
             {
+                if (_price == value)
+                {
+                    PriceForeground = Brushes.Black;
+                }
+                else if (_price < value)
+                {
+                    PriceForeground = Brushes.Green;
+                }
+                else
+                {
+                    PriceForeground = Brushes.Red;
+                }
                 _price = value;
+
+                PercentageForeground = Percentage == 0 ? Brushes.Black : (Percentage < 0 ? Brushes.Red : Brushes.Green);
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Price)));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Price24)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PriceForeground)));
             }
         }
 
@@ -72,10 +87,33 @@ namespace GDax.Views.Models
             set
             {
                 _openPrice = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Price24)));
+                PercentageForeground = Percentage == 0 ? Brushes.Black : (Percentage < 0 ? Brushes.Red : Brushes.Green);
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Percentage)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(PercentageForeground)));
             }
         }
 
-        public double Price24 => (_price - _openPrice) / _openPrice;
+        public double Percentage => (_price - _openPrice) / _openPrice;
+
+        public double Volume
+        {
+            get { return _volume; }
+            set
+            {
+                _volume = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Volume)));
+            }
+        }
+
+        public string TickerSymbol
+        {
+            get
+            {
+                if (Product is CurrencyPair)
+                    return Utils.GetTicketSymbol(((CurrencyPair)Product).Base);
+
+                return "";
+            }
+        }
     }
 }

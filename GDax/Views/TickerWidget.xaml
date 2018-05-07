@@ -6,7 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:local="clr-namespace:GDax.Converters"
         mc:Ignorable="d"
-        Title="TickerWidget" Height="50" Width="150" WindowStyle="None" Background="{x:Null}"
+        Title="TickerWidget" Width="150" WindowStyle="None" Background="{x:Null}"
         FontSize="18" Topmost="True" ShowInTaskbar="False" AllowsTransparency="True" Loaded="TickerLoaded">
     <Window.Resources>
         <local:CurrencyIconConverter x:Key="PathConverter" />
@@ -25,7 +25,7 @@
         <Binding Path="Settings.Left" />
     </Window.Left>
 
-    <materialDesign:Card x:Name="tickerCard" MouseDown="MoveTicker" MouseEnter="MouseOver" MouseLeave="MouseOut" MaxHeight="50">
+    <materialDesign:Card x:Name="tickerCard" MouseDown="MoveTicker" MouseEnter="MouseOver" MouseLeave="MouseOut" >
         <Grid Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="32" />
@@ -35,8 +35,16 @@
                 <Path Stretch="Uniform" Data="{Binding Product, Converter={StaticResource PathConverter}}" Fill="{Binding Foreground}" />
             </DockPanel>
             <StackPanel Orientation="Vertical" Grid.Column="1" VerticalAlignment="Center" Margin="0 0 3 0">
-                <TextBlock HorizontalAlignment="Right" Margin="0 0 0 1" Text="{Binding Price, StringFormat={}{0:C}}" />
-                <TextBlock HorizontalAlignment="Right" FontSize="12" Text="{Binding Price24, StringFormat={}{0:P2}}" />
+                <TextBlock HorizontalAlignment="Right" Margin="0 0 0 1" Text="{Binding Price, StringFormat={}{0:C}}" Foreground="{Binding PriceForeground}"/>
+                <TextBlock HorizontalAlignment="Right" FontSize="12" Text="{Binding Percentage, StringFormat={}{0:P2}}" Foreground="{Binding PercentageForeground}"/>
+                <TextBlock HorizontalAlignment="Right" FontSize="12" >
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0:0} {1}">
+                            <Binding Path="Volume"/>
+                            <Binding Path="TickerSymbol"/>
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
             </StackPanel>
         </Grid>
     </materialDesign:Card>

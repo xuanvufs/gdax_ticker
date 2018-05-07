@@ -50,5 +50,12 @@ namespace GDax.Helpers
                 return false;
             }
         }
+
+        public static string GetTicketSymbol(Currency currency)
+        {
+            var attr = typeof(Currency).GetMember(currency.ToString())[0].GetCustomAttributes(typeof(TickerSymbolAttribute), false).FirstOrDefault() as TickerSymbolAttribute;
+
+            return attr == null ? "" : attr.TickerSymbol;
+        }
     }
 }
