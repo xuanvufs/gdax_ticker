@@ -41,7 +41,6 @@ namespace GDax
         {
             if (_subscribed.Contains(product))
             {
-                EnsureSubscription();
                 return;
             }
 
@@ -53,7 +52,6 @@ namespace GDax
         {
             if (!_subscribed.Contains(product))
             {
-                EnsureSubscription();
                 return;
             }
 
@@ -144,7 +142,7 @@ namespace GDax
             if (_socket != null && _socket.State == WebSocketState.Open)
             {
                 // Subscribe to all CoinKind that doesn't yet have a subscription
-                var notYetSubscribed = _subscribed.Where(c => !_subscriptions.Any(s => s == c));
+                var notYetSubscribed = _subscribed.Where(c => !_subscriptions.Any(s => s.CompareTo(c) == 0));
 
                 foreach (var product in notYetSubscribed)
                 {
@@ -152,7 +150,7 @@ namespace GDax
                     _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, product), WebSocketMessageType.Text, true, CancellationToken.None);
                 }
                 // Unsubscribe where subscription still exist
-                var notYetUnsubscribed = _subscriptions.Where(c => !_subscribed.Any(s => s == c));
+                var notYetUnsubscribed = _subscriptions.Where(c => !_subscribed.Any(s => s.CompareTo(c) == 0));
 
                 foreach (var product in notYetUnsubscribed)
                 {
