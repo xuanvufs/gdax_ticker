@@ -34,11 +34,16 @@ namespace GDax
             }
 
             _trayIcon = _container.GetInstance<TaskbarIcon>();
-            _trayIcon.Icon = GDax.Properties.Resources.gdax;
+            _trayIcon.Icon = GDax.Properties.Resources.disconnected;
             _trayIcon.Visibility = Visibility.Visible;
             _trayIcon.ContextMenu = _container.GetInstance<TrayMenu>();
             _widgets = _container.GetAllInstances<TickerWidget>();
+            _container.GetInstance<IFeed>().ConnectionStateChanged += ConnectionStateChanged;
+        }
 
+        private void ConnectionStateChanged(System.Net.WebSockets.WebSocketState state)
+        {
+            _trayIcon.Icon = state != System.Net.WebSockets.WebSocketState.Open ? GDax.Properties.Resources.disconnected : GDax.Properties.Resources.gdax;
         }
 
         protected override void OnExit(ExitEventArgs e)
@@ -46,6 +51,7 @@ namespace GDax
             base.OnExit(e);
 
             _container?.GetInstance<ISettingsFactory>().SaveSettings();
+            _container?.GetInstance<IFeed>().Stop();
             _container?.Dispose();
             _trayIcon?.Dispose();
         }

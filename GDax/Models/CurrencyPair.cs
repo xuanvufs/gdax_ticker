@@ -8,7 +8,6 @@ using System.Reflection;
 
 namespace GDax.Models
 {
-    [JsonConverter(typeof(ProductIdConverter))]
     public class CurrencyPair : IProduct
     {
         private string _baseSymbol;
@@ -67,9 +66,26 @@ namespace GDax.Models
             return false;
         }
 
-        public int CompareTo(IProduct other)
+        public bool Equals(IProduct other)
         {
-            return string.Compare(ProductId, other.ProductId, true);
+            return ProductId.Equals(other.ProductId);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+
+            var product = obj as IProduct;
+            if (product == null)
+                return false;
+
+            return Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return ProductId.GetHashCode();
         }
     }
 }

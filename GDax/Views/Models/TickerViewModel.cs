@@ -40,7 +40,7 @@ namespace GDax.Views.Models
 
         private void OnPriceUpdate(IProduct product, TickerResponse data)
         {
-            if (Product.CompareTo(product) != 0) return;
+            if (!Product.Equals(product)) return;
 
             Price = data.Price;
             OpenPrice = data.OpenPrice;

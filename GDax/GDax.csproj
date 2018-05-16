@@ -187,6 +187,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\gdax.ico" />
+    <Resource Include="Resources\disconnected.ico" />
     <Content Include="Resources\gdax.svg" />
   </ItemGroup>
   <ItemGroup>

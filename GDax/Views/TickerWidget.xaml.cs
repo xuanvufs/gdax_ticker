@@ -47,9 +47,5 @@ namespace GDax.Views
 
             Native.SetWindowLong(wndHlp.Handle, (int)WindowLongFlags.GWL_EXSTYLE, (IntPtr)style);
         }
-
-        private void Window_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-        }
     }
 }

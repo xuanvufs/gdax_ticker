@@ -5,7 +5,7 @@ using System;
 namespace GDax.Models
 {
     [JsonConverter(typeof(ProductIdConverter))]
-    public interface IProduct : IComparable<IProduct>
+    public interface IProduct : IEquatable<IProduct>
     {
         string ProductId { get; }
     }
