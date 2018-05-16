@@ -292,6 +292,10 @@ namespace GDax
         public void Stop()
         {
             _token.Cancel();
+            lock (_lock)
+            {
+                Monitor.Pulse(_lock);
+            }
         }
 
         public void Dispose()
