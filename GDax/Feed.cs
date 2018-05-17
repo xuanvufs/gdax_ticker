@@ -38,7 +38,7 @@ namespace GDax
         private static readonly object _lock = new object();
         private readonly CancellationTokenSource _token;
         private readonly List<IProduct> _subscription = new List<IProduct>();
-        private readonly List<IProduct> _subscriptionPending = new List<IProduct>();
+        private readonly Dictionary<IProduct, RequestType> _pendingRequests = new Dictionary<IProduct, RequestType>();
         private readonly Dictionary<IProduct, long> _lastSequence = new Dictionary<IProduct, long>();
         private readonly BlockingCollection<TickerResponse> _responses = new BlockingCollection<TickerResponse>();
         private readonly Task _task;
@@ -61,6 +61,7 @@ namespace GDax
                 return;
             }
 
+            SendRequest(RequestType.Subscribe, product);
             _subscription.Add(product);
 
             lock (_lock)
@@ -76,7 +77,23 @@ namespace GDax
                 return;
             }
 
+            SendRequest(RequestType.Unsubscribe, product);
             _subscription.Remove(product);
+        }
+
+        private void SendRequest(RequestType type, IProduct product)
+        {
+            if (_socket == null || _socket.State != WebSocketState.Open)
+                return;
+
+            var request = GetRequestMessage(type, product);
+            _socket.SendAsync(request, WebSocketMessageType.Text, true, _token.Token)
+                   .ContinueWith(t =>
+                                 {
+                                     if (t.Status == TaskStatus.Faulted) Debug.WriteLine($"Request to {type} to '{product.ProductId}' failed.{Environment.NewLine}{t.Exception.GetBaseException()}", "Error");
+                                     else Debug.WriteLine($"Successfully {type} to '{product.ProductId}'.", "Trace");
+                                 });
+            _pendingRequests.Add(product, type);
         }
 
         private ArraySegment<byte> GetRequestMessage(RequestType type, params IProduct[] kind)
@@ -131,14 +148,6 @@ namespace GDax
                 Debug.WriteLine($"Failed to connect to GDAX API.{Environment.NewLine}{ex}", "Error");
                 return false;
             }
-            finally
-            {
-                if (_socketState != _socket.State)
-                {
-                    _socketState = _socket.State;
-                    ConnectionStateChanged?.BeginInvoke(_socketState, ConnectionStateChangedCallback, null);
-                }
-            }
         }
 
         private void ConnectionStateChangedCallback(IAsyncResult result)
@@ -163,6 +172,13 @@ namespace GDax
                     if (_token.IsCancellationRequested)
                         break;
 
+                    var state = _socket?.State ?? WebSocketState.None;
+                    if (_socketState != state)
+                    {
+                        _socketState = state;
+                        ConnectionStateChanged?.BeginInvoke(_socketState, ConnectionStateChangedCallback, null);
+                    }
+
                     if (!_subscription.Any() && !_lastSequence.Any())
                     {
                         lock (_lock)
@@ -182,17 +198,28 @@ namespace GDax
                     _connectionAttempts = 0;
 
                     var subscribed = _lastSequence.Keys.ToList();
-                    var notYetSubscribed = _subscription.Except(subscribed.Union(_subscriptionPending)).ToList();
+                    var pending = _pendingRequests.Keys.ToList();
+                    var notYetSubscribed = _subscription.Except(subscribed.Union(pending)).ToList();
                     if (notYetSubscribed.Any())
                     {
                         await _socket.SendAsync(GetRequestMessage(RequestType.Subscribe, notYetSubscribed.ToArray()), WebSocketMessageType.Text, true, _token.Token);
-                        _subscriptionPending.AddRange(notYetSubscribed);
+                        foreach (var product in notYetSubscribed)
+                        {
+                            if (_pendingRequests.ContainsKey(product)) _pendingRequests[product] = RequestType.Subscribe;
+                            else _pendingRequests.Add(product, RequestType.Subscribe);
+                        }
                     }
 
-                    var notYetUnsubscribed = subscribed.Except(_subscription.Union(_subscriptionPending)).ToList();
+                    var notYetUnsubscribed = subscribed.Except(_subscription.Union(pending)).ToList();
                     if (notYetUnsubscribed.Any())
+                    {
                         await _socket.SendAsync(GetRequestMessage(RequestType.Unsubscribe, notYetUnsubscribed.ToArray()), WebSocketMessageType.Text, true, _token.Token);
-
+                        foreach (var product in notYetUnsubscribed)
+                        {
+                            if (_pendingRequests.ContainsKey(product)) _pendingRequests[product] = RequestType.Unsubscribe;
+                            else _pendingRequests.Add(product, RequestType.Unsubscribe);
+                        }
+                    }
                     byte[] receivedBytes = null;
                     using (var stream = new MemoryStream())
                     {
@@ -216,20 +243,25 @@ namespace GDax
                     if (response?.Type == ResponseType.Subscriptions)
                     {
                         var tickerChannel = JsonConvert.DeserializeObject<SubscriptionResponse>(json)?.Channels?.FirstOrDefault(c => c.Type == ChannelType.Ticker);
+                        _lastSequence.Clear();
                         if (tickerChannel != null)
                         {
-                            _lastSequence.Clear();
                             foreach (var product in tickerChannel.Products)
                             {
-                                _subscriptionPending.Remove(product);
+                                _pendingRequests.Remove(product);
                                 _lastSequence.Add(product, 0);
                             }
+                        }
+                        else
+                        {
+                            Debug.WriteLine("No more subscriptions, disconnecting.", "Trace");
+                            await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "No more subscriptions", _token.Token);
+                        }
 
-                            if (!_lastSequence.Any())
-                            {
-                                Debug.WriteLine("No more subscriptions, disconnecting.", "Trace");
-                                await _socket.CloseAsync(WebSocketCloseStatus.NormalClosure, "No more subscriptions", _token.Token);
-                            }
+                        var unsubscribed = _pendingRequests.Where(kv => kv.Value == RequestType.Unsubscribe).Select(kv => kv.Key).ToList();
+                        foreach (var product in unsubscribed)
+                        {
+                            _pendingRequests.Remove(product);
                         }
                     }
                     else if (response?.Type == ResponseType.Ticker)
@@ -282,7 +314,8 @@ namespace GDax
 
                         PriceUpdated?.Invoke(ticker.ProductId, ticker);
                     }
-                } catch (OperationCanceledException)
+                }
+                catch (OperationCanceledException)
                 {
                     break;
                 }
